@@ -77,6 +77,9 @@ namespace InterviewTestTemplatev2.Services
             if (!bonusAllocationPercForDept.HasValue)
                 throw new BonusAllocationNotSpecifiedForDepartmentException();
 
+            if (employee.Salary <= 0)
+                throw new SalaryInvalidException();
+
             return CalculateBonusBasedOnDepartmentAllocation(employee.Salary, bonusPool, employee.HrDepartmentId, bonusAllocationPercForDept);
         }
 
