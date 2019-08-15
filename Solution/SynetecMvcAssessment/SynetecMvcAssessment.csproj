@@ -187,6 +187,11 @@
     </Compile>
     <Compile Include="Data\Repositories\IRepository.cs" />
     <Compile Include="Data\Repositories\Repository.cs" />
+    <Compile Include="Exceptions\BonusAllocationNotSpecifiedForDepartmentException.cs" />
+    <Compile Include="Exceptions\EmployeeNotFoundException.cs" />
+    <Compile Include="Exceptions\SalaryInvalidException.cs" />
+    <Compile Include="Exceptions\TotalDepartmentSalaryInvalidException.cs" />
+    <Compile Include="Exceptions\TotalSalaryInvalidException.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>

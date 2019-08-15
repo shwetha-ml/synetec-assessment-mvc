@@ -6,6 +6,7 @@ using System.Web.Mvc;
 using AutoMapper;
 using InterviewTestTemplatev2.Data;
 using InterviewTestTemplatev2.Data.Repositories;
+using InterviewTestTemplatev2.Exceptions;
 using InterviewTestTemplatev2.Services;
 using InterviewTestTemplatev2.ViewModels;
 
@@ -34,7 +35,7 @@ namespace InterviewTestTemplatev2.Controllers
         }
 
         /// <summary>
-        /// 
+        /// Calculate the bonus allocation amount for the selected employee. 
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
@@ -45,8 +46,8 @@ namespace InterviewTestTemplatev2.Controllers
             HrEmployee thisEmployee = _employeeRepository.Get(model.SelectedEmployeeId);
 
             if (thisEmployee == null)
-                throw new Exception("Invalid employee");
-            
+                throw new EmployeeNotFoundException();
+
             BonusForEmployeeViewModel result = new BonusForEmployeeViewModel();
             result.EmployeeFullName = thisEmployee.Full_Name;
             result.BonusAmount = _bonusCalculatorService.CalculateBonus(thisEmployee, model.BonusPool.Value);
@@ -56,7 +57,7 @@ namespace InterviewTestTemplatev2.Controllers
 
 
         /// <summary>
-        /// Gets the bonus pool amount
+        /// Gets the bonus pool amount. This amount is used to compute the bonus allocations for all employees.
         /// </summary>
         /// <returns></returns>
         public ActionResult GetDetailsForAllEmployees()
@@ -65,7 +66,11 @@ namespace InterviewTestTemplatev2.Controllers
             return View(model);
         }
 
-
+        /// <summary>
+        /// Calculate the bonus allocation for all employees and return a list (with employe full name and bonus amount) to the view.
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult CalculateForAllEmployees(GetDetailsForAllEmployeesViewModel model)

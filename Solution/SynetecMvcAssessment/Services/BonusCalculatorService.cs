@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using InterviewTestTemplatev2.Exceptions;
 
 namespace InterviewTestTemplatev2.Services
 {
@@ -18,35 +19,96 @@ namespace InterviewTestTemplatev2.Services
             _departmentRepository = departmentRepository;
         }
 
+        /// <summary>
+        /// Calculate the employee's bonus based on proportion of the employee's salary on the total wage budget of the company
+        /// </summary>
+        /// <param name="employee"></param>
+        /// <param name="bonusPool"></param>
+        /// <returns></returns>
         public int CalculateBonus(HrEmployee employee, int bonusPool)
         {
+            if (employee.Salary <= 0)
+                throw new SalaryInvalidException();
+
             //get the total salary budget for the company
-            int totalSalary = _employeeRepository.GetAll().Sum(item => item.Salary);
+            int totalSalary = GetTotalSalaryOfAllCompanyPersonnel();
 
-            //calculate the bonus allocation for the employee ie (employeeSalary / totalSalary) * bonusPool
-            decimal bonusPercentage = (decimal)employee.Salary / (decimal)totalSalary;
+            if (totalSalary <= 0)
+                throw new TotalSalaryInvalidException();
+
+            return CalculateBonus(employee.Salary, bonusPool, totalSalary);
+        }
+
+        /// <summary>
+        /// Calculate the employee's bonus based on proportion of the employee's salary on the total wage budget of the company
+        /// </summary>
+        /// <param name="employeeSalary"></param>
+        /// <param name="bonusPool"></param>
+        /// <param name="totalSalaryBudget"></param>
+        /// <returns></returns>
+        public int CalculateBonus(int employeeSalary, int bonusPool, int totalSalaryBudget)
+        {
+            // Calculate the bonus allocation for the employee ie (employeeSalary / totalSalary) * bonusPool
+            decimal bonusPercentage = (decimal)employeeSalary / (decimal)totalSalaryBudget;
             var bonusAmount = (int)(bonusPercentage * bonusPool);
-
             return bonusAmount;
         }
 
+        /// <summary>
+        /// Get the sum of all salaries paid to all personnel in the company 
+        /// </summary>
+        /// <returns></returns>
+        private int GetTotalSalaryOfAllCompanyPersonnel()
+        {
+            return _employeeRepository.GetAll().Sum(item => item.Salary);
+        }
+
+        /// <summary>
+        /// Calculate the employee's bonus based on the employee's department allocation percentage
+        /// </summary>
+        /// <param name="employee"></param>
+        /// <param name="bonusPool"></param>
+        /// <returns></returns>
         public int CalculateBonusBasedOnDepartmentAllocation(HrEmployee employee, int bonusPool)
         {
             // calculate bonus allocation for department
             var bonusAllocationPercForDept = _departmentRepository.Get(employee.HrDepartmentId).BonusPoolAllocationPerc;
 
             if (!bonusAllocationPercForDept.HasValue)
-                throw new Exception($"Department with Id {employee.HrDepartmentId} does not have allocation percentage and hence bonus based on department allocation cannot be computed");
+                throw new BonusAllocationNotSpecifiedForDepartmentException();
 
-            var bonusAllocationForDept = bonusAllocationPercForDept.Value * bonusPool;
+            return CalculateBonusBasedOnDepartmentAllocation(employee.Salary, bonusPool, employee.HrDepartmentId, bonusAllocationPercForDept);
+        }
 
-            int totalDepartmentSalary = _employeeRepository.GetAll().Where(emp => emp.HrDepartmentId == employee.HrDepartmentId).Sum(item => item.Salary);
+        /// <summary>
+        /// Get the sum of all salaries paid to personnel in this department 
+        /// </summary>
+        /// <param name="departmentId"></param>
+        /// <returns></returns>
+        private int GetTotalSalaryOfAllPersonnelInDepartment(int departmentId)
+        {
+            return _employeeRepository.GetAll().Where(emp => emp.HrDepartmentId == departmentId).Sum(item => item.Salary);
+        }
 
-            //calculate the bonus allocation for the employee ie (employeeSalary / totalDepartmentSalary) * bonusPool
-            decimal bonusPercentage = (decimal)employee.Salary / (decimal)totalDepartmentSalary;
+        /// <summary>
+        /// Calculate the employee's bonus based on the employee's department allocation percentage
+        /// </summary>
+        /// <param name="employeeSalary"></param>
+        /// <param name="bonusPool"></param>
+        /// <param name="employeeDepartmentId"></param>
+        /// <param name="bonusAllocationPercentageForDept"></param>
+        /// <returns></returns>
+        public int CalculateBonusBasedOnDepartmentAllocation(int employeeSalary, int bonusPool, int employeeDepartmentId, int? bonusAllocationPercentageForDept)
+        {
+            // Compute the sum of all salaries paid to personnel in this department
+            int totalDepartmentSalary = GetTotalSalaryOfAllPersonnelInDepartment(employeeDepartmentId);
 
-            var bonusAmount = (int)(bonusPercentage * bonusPool);
+            // Retrieve the bonus allocation % for this department
+            var bonusPoolAllocationForDept = bonusAllocationPercentageForDept.Value * bonusPool;            
 
+            // Calculate the bonus allocation for the employee ie (employeeSalary / totalDepartmentSalary) * bonusPoolAllocationForDept
+            decimal bonusPercentageForEmployee = (decimal)employeeSalary / (decimal)totalDepartmentSalary;
+            var bonusAmount = (int)(bonusPercentageForEmployee * bonusPoolAllocationForDept);
             return bonusAmount;
         }
     }
