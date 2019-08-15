@@ -16,7 +16,7 @@ namespace InterviewTestTemplatev2
             routes.MapRoute(
                 name: "Default",
                 url: "{controller}/{action}/{id}",
-                defaults: new { controller = "BonusPool", action = "Index", id = UrlParameter.Optional }
+                defaults: new { controller = "BonusPool", action = "GetDetailsForSelectedEmployee", id = UrlParameter.Optional }
             );
         }
     }
