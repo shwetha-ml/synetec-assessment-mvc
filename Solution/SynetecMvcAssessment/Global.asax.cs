@@ -12,6 +12,8 @@ using SimpleInjector.Integration.Web;
 using SimpleInjector.Integration.Web.Mvc;
 using InterviewTestTemplatev2.Services;
 using System.Reflection;
+using InterviewTestTemplatev2.Data.Repositories;
+using InterviewTestTemplatev2.Data;
 
 namespace InterviewTestTemplatev2
 {
@@ -22,8 +24,10 @@ namespace InterviewTestTemplatev2
             // wire in SimpleInjector
             var container = new Container();
             container.Options.DefaultScopedLifestyle = new WebRequestLifestyle();
-            container.Register<IBonusCalculatorService, BonusCalculatorService>(Lifestyle.Scoped);
+            container.Register<IBonusCalculatorService, BonusCalculatorService>(Lifestyle.Transient);
             container.RegisterMvcControllers(Assembly.GetExecutingAssembly());
+            container.Register<MvcInterviewV3Entities1>(Lifestyle.Scoped);
+            container.Register(typeof(IRepository<>), typeof(Repository<>));
             container.Verify();
             DependencyResolver.SetResolver(new SimpleInjectorDependencyResolver(container));
 

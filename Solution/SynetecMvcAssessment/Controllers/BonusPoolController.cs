@@ -5,6 +5,7 @@ using System.Web;
 using System.Web.Mvc;
 using AutoMapper;
 using InterviewTestTemplatev2.Data;
+using InterviewTestTemplatev2.Data.Repositories;
 using InterviewTestTemplatev2.Services;
 using InterviewTestTemplatev2.ViewModels;
 
@@ -12,13 +13,13 @@ namespace InterviewTestTemplatev2.Controllers
 {
     public class BonusPoolController : Controller
     {
-        private MvcInterviewV3Entities1 _context;
         private IBonusCalculatorService _bonusCalculatorService;
+        private IRepository<HrEmployee> _employeeRepository;
 
-        public BonusPoolController(IBonusCalculatorService bonusCalculatorService)
+        public BonusPoolController(IBonusCalculatorService bonusCalculatorService, IRepository<HrEmployee> employeeRepository)
         {
-            _context = new MvcInterviewV3Entities1();
             _bonusCalculatorService = bonusCalculatorService;
+            _employeeRepository = employeeRepository;
         }
 
         /// <summary>
@@ -28,7 +29,7 @@ namespace InterviewTestTemplatev2.Controllers
         public ActionResult GetDetailsForSelectedEmployee()
         {
             GetDetailsForSelectedEmployeeViewModel model = new GetDetailsForSelectedEmployeeViewModel();
-            model.Employees = _context.HrEmployees.Select(Mapper.Map<HrEmployee, HrEmployeeConciseViewModel>).ToList();
+            model.Employees = _employeeRepository.GetAll().Select(Mapper.Map<HrEmployee, HrEmployeeConciseViewModel>).ToList();
             return View(model);
         }
 
@@ -41,7 +42,7 @@ namespace InterviewTestTemplatev2.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult CalculateForSelectedEmployee(GetDetailsForSelectedEmployeeViewModel model)
         {
-            HrEmployee thisEmployee = _context.HrEmployees.SingleOrDefault(item => item.ID == model.SelectedEmployeeId);
+            HrEmployee thisEmployee = _employeeRepository.Get(model.SelectedEmployeeId);
 
             if (thisEmployee == null)
                 throw new Exception("Invalid employee");
@@ -71,7 +72,7 @@ namespace InterviewTestTemplatev2.Controllers
         {
             var employeeBonusDetails = new List<BonusForEmployeeViewModel>();
 
-            foreach (var employee in _context.HrEmployees)
+            foreach (var employee in _employeeRepository.GetAll())
             {
                 var bonusAmount = _bonusCalculatorService.CalculateBonus(employee, model.BonusPool.Value);
                 employeeBonusDetails.Add(new BonusForEmployeeViewModel { BonusAmount = bonusAmount, EmployeeFullName = employee.Full_Name });

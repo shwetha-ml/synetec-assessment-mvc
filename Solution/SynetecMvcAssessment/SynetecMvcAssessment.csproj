@@ -185,6 +185,8 @@
     <Compile Include="Data\HrEmployee.cs">
       <DependentUpon>BonusPoolModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Data\Repositories\IRepository.cs" />
+    <Compile Include="Data\Repositories\Repository.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
