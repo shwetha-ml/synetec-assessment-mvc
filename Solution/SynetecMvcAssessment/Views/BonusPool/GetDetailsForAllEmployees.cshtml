@@ -1,0 +1,37 @@
+﻿@model InterviewTestTemplatev2.ViewModels.GetDetailsForAllEmployeesViewModel
+
+@{
+    ViewBag.Title = "Get bonus details for employee";
+}
+
+<h2>Bonus Pool Calculator</h2>
+
+<p>
+    In order to calculate the bonus pool allocation for a particular employee, please enter in a valid amount for the total bonus pool.
+</p>
+
+@using (Html.BeginForm("CalculateForAllEmployees", "BonusPool", FormMethod.Post))
+{
+    @Html.ValidationSummary(true, "Please fix the following errors to proceed.")
+    @Html.AntiForgeryToken()
+    <div>
+        <table>
+            <tr>
+                <td>Bonus Pool Amount (£):</td>
+                <td>
+                    @Html.TextBoxFor(model => model.BonusPool)
+                    @Html.ValidationMessageFor(model => model.BonusPool)
+                </td>
+            </tr>
+            <tr>
+                <td></td>
+                <td><input type="submit" value="Calculate" /></td>
+            </tr>
+        </table>
+    </div>
+}
+
+@section scripts
+{
+    @Scripts.Render("~/bundles/jqueryval")
+}

@@ -1,0 +1,11 @@
+﻿@model InterviewTestTemplatev2.ViewModels.BonusForEmployeeViewModel
+
+@{
+    ViewBag.Title = "Caclulate";
+}
+
+<h2>Bonus Pool Allocation</h2>
+<p>The bonus pool allocation for @Model.EmployeeFullName is: £@Model.BonusAmount</p>
+
+@Html.ActionLink("Click here to calculate for another employee", "GetDetailsForSelectedEmployee") <br />
+@Html.ActionLink("Click here to calculate for all employees", "GetDetailsForAllEmployees", "BonusPool")

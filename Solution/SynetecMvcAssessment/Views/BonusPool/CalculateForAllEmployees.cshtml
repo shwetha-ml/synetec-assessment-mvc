@@ -1,0 +1,28 @@
+﻿@model IEnumerable<InterviewTestTemplatev2.ViewModels.BonusForEmployeeViewModel>
+@{
+    ViewBag.Title = "CalculateForAllEmployees";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Bonus Pool Allocation</h2>
+<p>The bonus pool allocation all employees is outlined below.</p>
+
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th>Employee name</th>
+            <th>Bonus amount</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+        <tr>
+            <td>@item.EmployeeFullName</td>
+            <td>£@item.BonusAmount</td>
+        </tr>
+        }
+    </tbody>
+</table>
+
+

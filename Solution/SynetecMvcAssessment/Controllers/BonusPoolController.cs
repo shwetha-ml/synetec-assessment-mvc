@@ -3,54 +3,81 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using AutoMapper;
 using InterviewTestTemplatev2.Data;
-using InterviewTestTemplatev2.Models;
-
+using InterviewTestTemplatev2.Services;
+using InterviewTestTemplatev2.ViewModels;
 
 namespace InterviewTestTemplatev2.Controllers
 {
     public class BonusPoolController : Controller
     {
+        private MvcInterviewV3Entities1 _context;
+        private IBonusCalculatorService _bonusCalculatorService;
 
-        private MvcInterviewV3Entities1 db = new MvcInterviewV3Entities1();
-
-        // GET: BonusPool
-        public ActionResult Index()
+        public BonusPoolController(IBonusCalculatorService bonusCalculatorService)
         {
-            BonusPoolCalculatorModel model = new BonusPoolCalculatorModel();
+            _context = new MvcInterviewV3Entities1();
+            _bonusCalculatorService = bonusCalculatorService;
+        }
 
-            model.AllEmployees = db.HrEmployees.ToList<HrEmployee>();
-            
+        /// <summary>
+        /// Gets the bonus pool amount and the employee for whom the bonus needs to be calculated
+        /// </summary>
+        /// <returns></returns>
+        public ActionResult GetDetailsForSelectedEmployee()
+        {
+            GetDetailsForSelectedEmployeeViewModel model = new GetDetailsForSelectedEmployeeViewModel();
+            model.Employees = _context.HrEmployees.Select(Mapper.Map<HrEmployee, HrEmployeeConciseViewModel>).ToList();
             return View(model);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Calculate(BonusPoolCalculatorModel model)
+        public ActionResult CalculateForSelectedEmployee(GetDetailsForSelectedEmployeeViewModel model)
         {
+            HrEmployee thisEmployee = _context.HrEmployees.SingleOrDefault(item => item.ID == model.SelectedEmployeeId);
 
+            if (thisEmployee == null)
+                throw new Exception("Invalid employee");
             
-
-            int selectedEmployeeId = model.SelectedEmployeeId;
-            int totalBonusPool = model.BonusPoolAmount;
-
-            //load the details of the selected employee using the ID
-            HrEmployee hrEmployee = (HrEmployee)db.HrEmployees.FirstOrDefault(item => item.ID == selectedEmployeeId);
-            
-            int employeeSalary = hrEmployee.Salary;
-
-            //get the total salary budget for the company
-            int totalSalary = (int)db.HrEmployees.Sum(item => item.Salary);
-
-            //calculate the bonus allocation for the employee
-            decimal bonusPercentage = (decimal)employeeSalary / (decimal)totalSalary;
-            int bonusAllocation = (int)(bonusPercentage * totalBonusPool);
-
-            BonusPoolCalculatorResultModel result = new BonusPoolCalculatorResultModel();
-            result.hrEmployee = hrEmployee;
-            result.bonusPoolAllocation = bonusAllocation;
+            BonusForEmployeeViewModel result = new BonusForEmployeeViewModel();
+            result.EmployeeFullName = thisEmployee.Full_Name;
+            result.BonusAmount = _bonusCalculatorService.CalculateBonus(thisEmployee, model.BonusPool.Value);
             
             return View(result);
+        }
+
+
+        /// <summary>
+        /// Gets the bonus pool amount
+        /// </summary>
+        /// <returns></returns>
+        public ActionResult GetDetailsForAllEmployees()
+        {
+            GetDetailsForAllEmployeesViewModel model = new GetDetailsForAllEmployeesViewModel();
+            return View(model);
+        }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult CalculateForAllEmployees(GetDetailsForAllEmployeesViewModel model)
+        {
+            var employeeBonusDetails = new List<BonusForEmployeeViewModel>();
+
+            foreach (var employee in _context.HrEmployees)
+            {
+                var bonusAmount = _bonusCalculatorService.CalculateBonus(employee, model.BonusPool.Value);
+                employeeBonusDetails.Add(new BonusForEmployeeViewModel { BonusAmount = bonusAmount, EmployeeFullName = employee.Full_Name });
+            }
+
+            return View(employeeBonusDetails);
         }
     }
 }
