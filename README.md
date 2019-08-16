@@ -1,21 +1,30 @@
-# Synetec Basic ASP.Net MVC assessement
+# Synetec Basic ASP.Net MVC assessement - Shwetha's notes
 
-This is Synetec's basic MVC developer assessment.
+## Bonus calculation
 
-If you are reading this, you most probably have been asked to complete this assessment as part of Synetec's interview process.
+The problem statement in the 'MVC Developer Test Instructions' PDF states that the proportion of the bonus pool allocated to an employee should be the same as the proportion of the total wage budget that their salary represents. 
 
-In this repository, you will find the base project, SQL database creation script and instructions on what to do with them. 
+In the database schema provided, the 'HrDepartment' table contains a column 'BonusPoolAllocationPerc'. This is a percentage of the bonus pool that is allocated to the department. I was unsure if this needs to be factored in the bonus calculation algorithm. 
 
-## How to complete this test
+So, in order to provide a complete solution, I have included CalculateBonusBasedOnDepartmentAllocation() in the BonusCalculatorService that uses the 'BonusPoolAllocationPerc' value to compute the bonus for the employee. Please note that the view and controller invoke the CalculateBonus() method which computes the bonus simply as a proportion of the employee's salary to the total salary budget.
 
-Please follow the instructions in the Instructions.pdf, found in this repository
+## Bonus calculation for one employee vs all employees
 
-## How to submit your completed test
+The problem statement in the 'MVC Developer Test Instructions' PDF states that the task in hand is to build a prototype web app to calculate the individual bonus amounts for *each* employee. Since the views in the solution is calculating the bonus for the selected employee, I have also built the functionality to compute and display the bonus allocations for all employees given the bonus pool amount. This view can be accessed via ../BonusPool/GetDetailsForAllEmployees url.
 
-To sumbit your test, please 
-1. Fork this repository
-2. Complete the test as per the instructions PDF 
-3. Commit your changes to your (forked) repo 
-4. Send us an http link to your repo that contains the completed test 
+## Validations
 
-**This repo is Read-Only!!** So please don't try to open a pull request
+Certain validations have been implemented -
+
+1. Bonus pool amount is required
+2. Bonus pool amount should be greater than 0
+
+## Exceptions
+
+Custom exceptions have been created - 
+
+1. BonusAllocationNotSpecifiedForDepartmentException - Thrown by the BonusCalculatorService.CalculateBonusBasedOnDepartmentAllocation() if the bonus allocation percentage is not specified for department in question
+2. EmployeeNotFoundException - Thrown by the BonusPoolController if employee with does not exist. It is unlikely that this exception will ever be thrown but implemented to provide completeness 
+3. SalaryInvalidException - Thrown by the BonusCalculatorService.CalculateBonus() and BonusCalculatorService.CalculateBonusBasedOnDepartmentAllocation() if salary of employee is less than or equal to zero
+4. TotalDepartmentSalaryInvalidException - Thrown by the BonusCalculatorService.CalculateBonusBasedOnDepartmentAllocation() if total salary for personnel in department is less than or equal to zero
+5. TotalSalaryInvalidException -  Thrown by the BonusCalculatorService.CalculateBonus() if total salary amount of company is less than or equal to zero
