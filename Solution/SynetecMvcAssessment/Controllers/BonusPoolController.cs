@@ -29,9 +29,18 @@ namespace InterviewTestTemplatev2.Controllers
         /// <returns></returns>
         public ActionResult GetDetailsForSelectedEmployee()
         {
+            return View(PrepareGetDetailsForSelectedEmployeeView());
+        }
+
+        /// <summary>
+        /// Prepare the model for the 'GetDetailsForSelectedEmployee' view
+        /// </summary>
+        /// <returns></returns>
+        private GetDetailsForSelectedEmployeeViewModel PrepareGetDetailsForSelectedEmployeeView()
+        {
             GetDetailsForSelectedEmployeeViewModel model = new GetDetailsForSelectedEmployeeViewModel();
             model.Employees = _employeeRepository.GetAll().Select(Mapper.Map<HrEmployee, HrEmployeeConciseViewModel>).ToList();
-            return View(model);
+            return model;
         }
 
         /// <summary>
@@ -43,15 +52,25 @@ namespace InterviewTestTemplatev2.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult CalculateForSelectedEmployee(GetDetailsForSelectedEmployeeViewModel model)
         {
-            HrEmployee thisEmployee = _employeeRepository.Get(model.SelectedEmployeeId);
-
-            if (thisEmployee == null)
-                throw new EmployeeNotFoundException();
-
             BonusForEmployeeViewModel result = new BonusForEmployeeViewModel();
-            result.EmployeeFullName = thisEmployee.Full_Name;
-            result.BonusAmount = _bonusCalculatorService.CalculateBonus(thisEmployee, model.BonusPool.Value);
-            
+
+            try
+            {
+                HrEmployee thisEmployee = _employeeRepository.Get(model.SelectedEmployeeId);
+
+                if (thisEmployee == null)
+                    throw new EmployeeNotFoundException();
+                
+                result.EmployeeFullName = thisEmployee.Full_Name;
+                result.BonusAmount = _bonusCalculatorService.CalculateBonus(thisEmployee, model.BonusPool.Value);
+            }
+            catch (Exception e)
+            {
+                ModelState.AddModelError("", e.Message);
+
+                return View("GetDetailsForSelectedEmployee", PrepareGetDetailsForSelectedEmployeeView());
+            }
+
             return View(result);
         }
 

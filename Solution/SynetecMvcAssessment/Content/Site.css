@@ -30,3 +30,7 @@ textarea {
 .input-validation-error {
     border: solid red 1px;
 }
+
+.validation-summary-errors {
+    color: red !important;
+}

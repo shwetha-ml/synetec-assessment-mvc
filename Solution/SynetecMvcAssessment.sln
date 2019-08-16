@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.27004.2009
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SynetecMvcAssessment", "SynetecMvcAssessment\SynetecMvcAssessment.csproj", "{ADB94C4B-2A3E-4F85-A015-389E5DAA3904}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SynetecMvcAssessment.Test", "SynetecMvcAssessment.Test\SynetecMvcAssessment.Test.csproj", "{8DBBA976-D6E4-47E0-BE7E-3477673AF027}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{ADB94C4B-2A3E-4F85-A015-389E5DAA3904}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ADB94C4B-2A3E-4F85-A015-389E5DAA3904}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ADB94C4B-2A3E-4F85-A015-389E5DAA3904}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8DBBA976-D6E4-47E0-BE7E-3477673AF027}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8DBBA976-D6E4-47E0-BE7E-3477673AF027}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8DBBA976-D6E4-47E0-BE7E-3477673AF027}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8DBBA976-D6E4-47E0-BE7E-3477673AF027}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
